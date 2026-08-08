@@ -83,8 +83,18 @@ jobs:
     # ── Build tools ───────────────────────────────────────────────────
     - name: Install build tools
       run: |
-        brew install ldid fakeroot 2>/dev/null || true
+        # ldid for codesigning
+        brew install ldid 2>/dev/null || true
+
+        # FIX: Homebrew default fakeroot has arch mismatch on macos-14 arm64.
+        # Must use theos/theos tap which ships a properly patched fakeroot for Theos.
+        brew tap theos/theos 2>/dev/null || true
+        brew install theos/theos/fakeroot 2>/dev/null || true
+
         echo "$THEOS/bin" >> $GITHUB_PATH
+        echo "ldid: $(which ldid || echo 'NOT FOUND')"
+        echo "fakeroot: $(which fakeroot || echo 'NOT FOUND')"
+
 
     # ── Build .deb ────────────────────────────────────────────────────
     - name: Build .deb
