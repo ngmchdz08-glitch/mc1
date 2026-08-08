@@ -1,0 +1,9 @@
+Package: com.vcam.mch
+Name: Vcam_Mch
+Version: 1.0.0
+Architecture: iphoneos-arm64
+Description: Virtual Camera Tweak for iOS — Vcam_Mch
+Maintainer: Mch
+Author: Mch
+Section: Tweaks
+Depends: mobilesubstrate (>= 0.9.5000), firmware (>= 15.0)
