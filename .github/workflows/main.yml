@@ -96,14 +96,28 @@ jobs:
 
         echo "=== Build env ==="
         echo "THEOS = $THEOS"
-        ls $THEOS/sdks/ || true
-        which ldid && ldid || true
+        echo "SDKs available:"
+        ls $THEOS/sdks/
+
+        # Auto-detect installed SDK version (e.g. iPhoneOS15.6.sdk -> 15.6)
+        SDK_NAME=$(ls $THEOS/sdks/ | grep 'iPhoneOS' | head -1)
+        SDK_VER=$(echo "$SDK_NAME" | sed 's/iPhoneOS//' | sed 's/\.sdk//')
+        echo "Using SDK: $SDK_NAME (version $SDK_VER)"
+
+        if [ -z "$SDK_VER" ]; then
+          echo "ERROR: No iPhoneOS SDK found in $THEOS/sdks/"
+          exit 1
+        fi
 
         make clean 2>/dev/null || true
-        make package FINALPACKAGE=1 -j$(sysctl -n hw.ncpu)
+        # FIX: Pass detected SDK version — min deployment target stays 15.0
+        make package FINALPACKAGE=1 \
+          TARGET="iphone:clang:${SDK_VER}:15.0" \
+          -j$(sysctl -n hw.ncpu)
 
         echo "=== Packages ==="
         ls -lh packages/
+
 
     # ── Upload ────────────────────────────────────────────────────────
     - name: Upload .deb
